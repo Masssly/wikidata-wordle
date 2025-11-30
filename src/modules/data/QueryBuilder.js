@@ -1,5 +1,6 @@
 import { BASE_QUERY_TEMPLATES } from './queries/baseQueries.js';
-import { GAME_CONSTANTS } from '../config/constants.js';
+// Import individual constants
+import { WORD_LENGTH } from '../config/constants.js';
 
 export class QueryBuilder {
     static buildQuery(language, wordType = 'nouns', options = {}) {
@@ -11,8 +12,8 @@ export class QueryBuilder {
 
         const defaults = {
             LIMIT: options.limit || 50,
-            MIN_LENGTH: options.minLength || GAME_CONSTANTS.WORD_LENGTH.MIN,
-            MAX_LENGTH: options.maxLength || GAME_CONSTANTS.WORD_LENGTH.MAX
+            MIN_LENGTH: options.minLength || WORD_LENGTH.MIN,
+            MAX_LENGTH: options.maxLength || WORD_LENGTH.MAX
         };
 
         return template
