@@ -1,5 +1,6 @@
 import { WikidataAPI } from '../data/WikidataAPI.js';
-import { GAME_CONSTANTS } from '../config/constants.js';
+// Import individual constants
+import { MAX_ATTEMPTS, WORD_LENGTH, HINTS } from '../config/constants.js';
 
 export class GameEngine {
     constructor() {
@@ -12,8 +13,9 @@ export class GameEngine {
         this.targetWord = '';
         this.guesses = [];
         this.currentGuess = '';
-        this.gameState = 'idle'; // 'idle', 'playing', 'won', 'lost'
+        this.gameState = 'idle';
         this.hintsUsed = new Set();
+        this.maxAttempts = MAX_ATTEMPTS;
     }
 
     async initializeGame(language, wordType = 'nouns') {
@@ -23,15 +25,14 @@ export class GameEngine {
 
             const lexemes = await this.wikidataAPI.fetchLexemes(language, wordType, {
                 limit: 100,
-                minLength: GAME_CONSTANTS.WORD_LENGTH.MIN,
-                maxLength: GAME_CONSTANTS.WORD_LENGTH.MAX
+                minLength: WORD_LENGTH.MIN,
+                maxLength: WORD_LENGTH.MAX
             });
 
             if (lexemes.length === 0) {
                 throw new Error('No lexemes found for the selected language and filters');
             }
 
-            // Select a random lexeme
             this.currentLexeme = lexemes[Math.floor(Math.random() * lexemes.length)];
             this.targetWord = this.currentLexeme.lemma.toLowerCase();
             this.gameState = 'playing';
@@ -70,7 +71,7 @@ export class GameEngine {
             guess,
             evaluation,
             gameOver,
-            guessesRemaining: GAME_CONSTANTS.MAX_ATTEMPTS - this.guesses.length
+            guessesRemaining: this.maxAttempts - this.guesses.length
         };
     }
 
@@ -79,7 +80,6 @@ export class GameEngine {
         const targetLetters = this.targetWord.split('');
         const guessLetters = guess.toLowerCase().split('');
 
-        // First pass: find correct positions
         const correctPositions = new Set();
         const remainingTargetLetters = [];
 
@@ -92,7 +92,6 @@ export class GameEngine {
             }
         }
 
-        // Second pass: find present but wrong position letters
         for (let i = 0; i < guessLetters.length; i++) {
             if (correctPositions.has(i)) continue;
 
@@ -116,7 +115,7 @@ export class GameEngine {
             return { won: true, message: 'Congratulations! You won!' };
         }
 
-        if (this.guesses.length >= GAME_CONSTANTS.MAX_ATTEMPTS) {
+        if (this.guesses.length >= this.maxAttempts) {
             this.gameState = 'lost';
             return { won: false, message: `Game over! The word was: ${this.targetWord}` };
         }
@@ -136,25 +135,25 @@ export class GameEngine {
         if (!this.currentLexeme) return null;
 
         switch (hintType) {
-            case GAME_CONSTANTS.HINTS.GRAMMATICAL_FEATURES:
+            case HINTS.GRAMMATICAL_FEATURES:
                 return {
                     type: 'grammatical_features',
                     data: this.currentLexeme.grammaticalFeatures
                 };
             
-            case GAME_CONSTANTS.HINTS.DEFINITION:
+            case HINTS.DEFINITION:
                 return {
                     type: 'definition',
                     data: this.currentLexeme.description || 'No description available'
                 };
             
-            case GAME_CONSTANTS.HINTS.IMAGE:
+            case HINTS.IMAGE:
                 return this.currentLexeme.image ? {
                     type: 'image',
                     data: this.currentLexeme.image
                 } : null;
             
-            case GAME_CONSTANTS.HINTS.PRONUNCIATION:
+            case HINTS.PRONUNCIATION:
                 return this.currentLexeme.audio ? {
                     type: 'pronunciation',
                     data: this.currentLexeme.audio
@@ -172,7 +171,7 @@ export class GameEngine {
             targetWord: this.targetWord,
             guesses: this.guesses,
             hintsUsed: Array.from(this.hintsUsed),
-            guessesRemaining: GAME_CONSTANTS.MAX_ATTEMPTS - this.guesses.length
+            guessesRemaining: this.maxAttempts - this.guesses.length
         };
     }
 }
