@@ -10,6 +10,63 @@
     <div id="app">
         <div class="loading">Loading Wikidata Wordle...</div>
     </div>
-    <script type="module" src="src/index.js"></script>
+    
+    <!-- Simple script that will show us what's working -->
+    <script>
+        console.log("=== WIKIDATA WORDLE DEBUG ===");
+        console.log("HTML is loading...");
+        
+        // Test if we can find the app element
+        const app = document.getElementById('app');
+        if (app) {
+            console.log("✓ Found #app element");
+            app.innerHTML = `
+                <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+                    <h1>🎮 Wikidata Wordle</h1>
+                    <p>Testing module loading...</p>
+                    <div id="status">Checking JavaScript...</div>
+                </div>
+            `;
+        } else {
+            console.error("❌ Could not find #app element");
+        }
+    </script>
+    
+    <!-- Load the main JavaScript module -->
+    <script type="module">
+        try {
+            console.log("Starting to load main module...");
+            
+            // Import the main game module
+            const module = await import('./src/index.js');
+            console.log("✓ Main module loaded successfully!");
+            
+            // Update status
+            const status = document.getElementById('status');
+            if (status) {
+                status.innerHTML = '✓ Game loaded successfully!';
+            }
+            
+        } catch (error) {
+            console.error("❌ Failed to load main module:", error);
+            
+            // Show detailed error to user
+            const app = document.getElementById('app');
+            if (app) {
+                app.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: red;">
+                        <h1>❌ Error Loading Game</h1>
+                        <p><strong>${error.message}</strong></p>
+                        <div style="background: #f8f8f8; padding: 20px; margin: 20px; text-align: left;">
+                            <h3>Debug Information:</h3>
+                            <p><strong>Error:</strong> ${error.toString()}</p>
+                            <p>Check the browser console (F12) for more details.</p>
+                        </div>
+                        <button onclick="location.reload()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
