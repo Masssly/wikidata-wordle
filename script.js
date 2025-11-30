@@ -32,13 +32,11 @@ const CONFIG = {
     `,
     // Map language codes to Wikidata Q-IDs for the dct:language property
     // You might need to expand this list. Example Q-IDs:
-    // English: Q1860, Spanish: Q1321, French: Q150, German: Q188, Dagbani: Q33572
+    // Dagbani: Q32238, German: Q188, English: Q1860
     LANGUAGE_CODE_TO_QID: {
-        "en": "Q1860",
-        "es": "Q1321",
-        "fr": "Q150",
+        "dag": "Q32238",
         "de": "Q188",
-        "dag": "Q33572"
+        "en": "Q1860"
         // Add more mappings as needed
     }
 };
