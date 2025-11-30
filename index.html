@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dagbani Lexical Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .game-container {
+            padding: 30px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .score-container, .round-container {
+            text-align: center;
+        }
+        
+        .score-value, .round-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .word-display {
+            text-align: center;
+            margin: 30px 0;
+            padding: 25px;
+            background: #e3f2fd;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .dagbani-word {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .lexeme-info {
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        .input-section {
+            margin: 30px 0;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .answer-input:focus {
+            border-color: #e74c3c;
+        }
+        
+        .button-section {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .submit-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .submit-btn:hover {
+            background: #2980b9;
+        }
+        
+        .skip-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .skip-btn:hover {
+            background: #c0392b;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .results {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .final-score {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        
+        .restart-btn {
+            background: #2ecc71;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background: #27ae60;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .dagbani-word {
+                font-size: 2.5rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .button-section {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dagbani Lexical Challenge</h1>
+            <p class="subtitle">Test your knowledge of Dagbani vocabulary</p>
+        </header>
+        
+        <div class="game-container">
+            <div id="game-screen">
+                <div class="game-info">
+                    <div class="score-container">
+                        <div>SCORE</div>
+                        <div class="score-value" id="score">0</div>
+                    </div>
+                    <div class="round-container">
+                        <div>ROUND</div>
+                        <div class="round-value" id="round">1/10</div>
+                    </div>
+                </div>
+                
+                <div class="word-display">
+                    <div class="dagbani-word" id="dagbani-word">Loading...</div>
+                    <div class="lexeme-info" id="lexeme-info">Dagbani lexeme</div>
+                </div>
+                
+                <div class="input-section">
+                    <label class="input-label" for="answer-input">Enter the English meaning:</label>
+                    <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here...">
+                </div>
+                
+                <div class="button-section">
+                    <button id="submit-btn" class="submit-btn">Submit</button>
+                    <button id="skip-btn" class="skip-btn">Skip</button>
+                </div>
+                
+                <div id="feedback" class="feedback hidden"></div>
+            </div>
+            
+            <div id="results-screen" class="results hidden">
+                <h2>Game Completed!</h2>
+                <p>Your final score:</p>
+                <div class="final-score" id="final-score">0</div>
+                <p>Well done on learning Dagbani vocabulary!</p>
+                <button id="restart-btn" class="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            score: 0,
+            currentRound: 1,
+            totalRounds: 10,
+            currentLexeme: null,
+            lexemes: [],
+            currentIndex: 0
+        };
+
+        // DOM elements
+        const dagbaniWordEl = document.getElementById('dagbani-word');
+        const lexemeInfoEl = document.getElementById('lexeme-info');
+        const answerInputEl = document.getElementById('answer-input');
+        const scoreEl = document.getElementById('score');
+        const roundEl = document.getElementById('round');
+        const submitBtn = document.getElementById('submit-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Wikidata query to get Dagbani lexemes
+        const wikidataQuery = `
+            SELECT ?lexeme ?lexemeLabel ?englishGloss WHERE {
+                ?lexeme a ontolex:LexicalEntry;
+                        dct:language wd:Q33572;
+                        wikibase:lemma ?lexemeLabel.
+                OPTIONAL {
+                    ?lexeme wdt:P5137 ?englishLexeme.
+                    ?englishLexeme wikibase:lemma ?englishGloss.
+                }
+                SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+            }
+            LIMIT 50
+        `;
+
+        // Fetch lexemes from Wikidata
+        async function fetchDagbaniLexemes() {
+            const encodedQuery = encodeURIComponent(wikidataQuery);
+            const url = `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/sparql-results+json'
+                    }
+                });
+                
+                const data = await response.json();
+                const results = data.results.bindings;
+                
+                // Filter results to only include lexemes with English translations
+                const validLexemes = results.filter(item => 
+                    item.englishGloss && item.englishGloss.value
+                ).map(item => ({
+                    dagbani: item.lexemeLabel.value,
+                    english: item.englishGloss.value
+                }));
+                
+                return validLexemes;
+            } catch (error) {
+                console.error('Error fetching data from Wikidata:', error);
+                return [];
+            }
+        }
+
+        // Initialize the game
+        async function initGame() {
+            feedbackEl.classList.add('hidden');
+            gameState.score = 0;
+            gameState.currentRound = 1;
+            updateScore();
+            updateRound();
+            
+            // Show loading state
+            dagbaniWordEl.textContent = 'Loading...';
+            lexemeInfoEl.textContent = 'Fetching lexemes';
+            
+            // Fetch lexemes
+            gameState.lexemes = await fetchDagbaniLexemes();
+            
+            if (gameState.lexemes.length === 0) {
+                dagbaniWordEl.textContent = 'No lexemes found';
+                lexemeInfoEl.textContent = 'Please try again later';
+                return;
+            }
+            
+            // Shuffle the lexemes
+            shuffleArray(gameState.lexemes);
+            gameState.currentIndex = 0;
+            
+            // Start the first round
+            startRound();
+        }
+
+        // Shuffle array using Fisher-Yates algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Start a new round
+        function startRound() {
+            if (gameState.currentRound > gameState.totalRounds) {
+                endGame();
+                return;
+            }
+            
+            if (gameState.currentIndex >= gameState.lexemes.length) {
+                gameState.currentIndex = 0;
+                shuffleArray(gameState.lexemes);
+            }
+            
+            gameState.currentLexeme = gameState.lexemes[gameState.currentIndex];
+            dagbaniWordEl.textContent = gameState.currentLexeme.dagbani;
+            lexemeInfoEl.textContent = 'Dagbani word';
+            answerInputEl.value = '';
+            feedbackEl.classList.add('hidden');
+            gameState.currentIndex++;
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreEl.textContent = gameState.score;
+        }
+
+        // Update round display
+        function updateRound() {
+            roundEl.textContent = `${gameState.currentRound}/${gameState.totalRounds}`;
+        }
+
+        // Check the answer
+        function checkAnswer() {
+            const userAnswer = answerInputEl.value.trim().toLowerCase();
+            const correctAnswer = gameState.currentLexeme.english.toLowerCase();
+            
+            if (userAnswer === '') {
+                feedbackEl.textContent = 'Please enter an answer';
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Check if answer is correct (case-insensitive)
+            if (userAnswer === correctAnswer) {
+                feedbackEl.textContent = `Correct! The meaning is: ${gameState.currentLexeme.english}`;
+                feedbackEl.className = 'feedback correct';
+                gameState.score += 10;
+                updateScore();
+            } else {
+                feedbackEl.textContent = `Incorrect. The correct meaning is: ${gameState.currentLexeme.english}`;
+                feedbackEl.className = 'feedback incorrect';
+            }
+            
+            feedbackEl.classList.remove('hidden');
+            
+            // Move to next round after delay
+            setTimeout(() => {
+                gameState.currentRound++;
+                updateRound();
+                startRound();
+            }, 2500);
+        }
+
+        // Skip to next round
+        function skipRound() {
+            feedbackEl.textContent = `Skipped. The meaning is: ${gameState.currentLexeme.english}`;
+            feedbackEl.className = 'feedback';
+            feedbackEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                gameState.currentRound++;
+                updateRound();
+                startRound();
+            }, 2000);
+        }
+
+        // End the game
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            finalScoreEl.textContent = gameState.score;
+        }
+
+        // Restart the game
+        function restartGame() {
+            resultsScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameState.score = 0;
+            gameState.currentRound = 1;
+            updateScore();
+            updateRound();
+            initGame();
+        }
+
+        // Event listeners
+        submitBtn.addEventListener('click', checkAnswer);
+        answerInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        skipBtn.addEventListener('click', skipRound);
+        restartBtn.addEventListener('click', restartGame);
+
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
