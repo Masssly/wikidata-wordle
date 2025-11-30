@@ -3,88 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WikiWordle - A Lexicographical Word Game</title>
-    <!-- Link to the external CSS file -->
-    <link rel="stylesheet" href="style.css">
+    <title>Wikidata Wordle</title>
+    <link rel="stylesheet" href="./src/styles/main.css">
 </head>
 <body>
-    <header>
-        <h1>Wikidata:Wordle</h1>
-        <p class="subtitle">A Wikidata Lexicographical Word Game</p>
-    </header>
-
-    <div class="language-selector">
-        <label for="languageSelect">Choose Language:</label>
-        <select id="languageSelect">
-            <option value="en">English (en)</option>
-            <option value="es">Spanish (es)</option>
-            <option value="fr">French (fr)</option>
-            <option value="de">German (de)</option>
-            <option value="dag">Dagbani (dag)</option>
-            <!-- Add more options as needed -->
-        </select>
+    <div id="app">
+        <div class="loading">Loading Wikidata Wordle...</div>
     </div>
-
-    <div class="game-container">
-        <div class="game-info">
-            <div>Lives: <span id="lives">6</span></div>
-            <div>Score: <span id="score">0</span></div>
-        </div>
-
-        <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
-
-        <div class="hint">
-            <strong>Hint:</strong> <span id="hint">Guess the word using lexicographical data from Wikidata</span>
-        </div>
-
-        <div class="definition">
-            <strong>Definition:</strong> <span id="definition">Loading definition...</span>
-        </div>
-
-        <!-- Added section for extra lexeme details -->
-        <div class="details">
-            <strong>Lexeme Details:</strong><br>
-            <span id="grammaticalFeatures">Grammatical Features: -</span><br>
-            <span id="translations">Translations: -</span><br>
-            <span id="pronunciation">Pronunciation: -</span><br>
-            <span id="images">Images: -</span>
-        </div>
-
-        <div class="language-info">
-            Language: <span id="languageDisplay">English</span> (<span id="languageCodeDisplay">en</span>)
-        </div>
-
-        <input type="text" class="guess-input" id="guessInput" placeholder="Enter your guess..." maxlength="50">
-
-        <div class="buttons">
-            <button id="submitBtn">Submit Guess</button>
-            <button id="hintBtn">Get Hint</button>
-            <button id="newGameBtn">New Game</button>
-        </div>
-
-        <div id="feedback"></div>
-
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-value" id="gamesPlayed">0</div>
-                <div class="stat-label">Games Played</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="gamesWon">0</div>
-                <div class="stat-label">Games Won</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="winRate">0%</div>
-                <div class="stat-label">Win Rate</div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>This game uses lexicographical data from Wikidata Lexemes.</p>
-    </footer>
-
-    <!-- Link to the external JavaScript file -->
-    <script src="script.js"></script>
+    <script type="module" src="./src/index.js"></script>
 </body>
 </html>
