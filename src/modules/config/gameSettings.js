@@ -1,13 +1,14 @@
-import { GAME_CONSTANTS } from './constants.js';
+// Import individual constants instead of the whole object
+import { MAX_ATTEMPTS, WORD_LENGTH } from './constants.js';
 
 export const DEFAULT_SETTINGS = {
-    maxAttempts: GAME_CONSTANTS.MAX_ATTEMPTS,
+    maxAttempts: MAX_ATTEMPTS,
     difficulty: 'medium',
     enableHints: true,
     enableAudio: true,
     wordLength: {
-        min: GAME_CONSTANTS.WORD_LENGTH.MIN,
-        max: GAME_CONSTANTS.WORD_LENGTH.MAX
+        min: WORD_LENGTH.MIN,
+        max: WORD_LENGTH.MAX
     }
 };
 
