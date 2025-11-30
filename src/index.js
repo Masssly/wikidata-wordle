@@ -3,12 +3,11 @@ import { LanguageSelector } from './modules/ui/LanguageSelector.js';
 import { GameBoard } from './modules/ui/GameBoard.js';
 import { Keyboard } from './modules/ui/Keyboard.js';
 import { HintSystem } from './modules/ui/HintSystem.js';
-import { GameSettings } from './modules/config/gameSettings.js';
+import { SUPPORTED_LANGUAGES } from './modules/config/supportedLanguages.js';
 
 class WikidataWordle {
     constructor() {
         this.gameEngine = new GameEngine();
-        this.settings = new GameSettings();
         this.currentGuess = '';
         this.isGameActive = false;
         
@@ -17,25 +16,31 @@ class WikidataWordle {
 
     async initializeApp() {
         try {
-            // Create main app container
+            console.log("Initializing Wikidata Wordle...");
+            
             this.appContainer = document.getElementById('app');
             if (!this.appContainer) {
                 throw new Error('App container not found');
             }
 
-            this.renderAppShell();
-            this.initializeModules();
-            this.attachGlobalEventListeners();
-
-            console.log('Wikidata Wordle initialized successfully');
+            // Render the main app structure
+            this.renderAppStructure();
+            
+            // Initialize all UI components
+            this.initializeUIComponents();
+            
+            // Start with a default language
+            await this.startNewGame('we'); // Start with Welsh
+            
+            console.log('Wikidata Wordle initialized successfully!');
 
         } catch (error) {
             console.error('Failed to initialize app:', error);
-            this.showError('Failed to initialize the game. Please refresh the page.');
+            this.showError('Failed to initialize the game: ' + error.message);
         }
     }
 
-    renderAppShell() {
+    renderAppStructure() {
         this.appContainer.innerHTML = `
             <div class="app-container">
                 <header class="app-header">
@@ -52,12 +57,9 @@ class WikidataWordle {
                     <div class="game-area">
                         <div id="gameBoardContainer"></div>
                         <div id="keyboardContainer"></div>
+                        <div id="messageArea" class="message-area"></div>
                     </div>
                 </main>
-                
-                <footer class="app-footer">
-                    <p>Powered by Wikidata • Made with ♥ for language learners</p>
-                </footer>
                 
                 <div id="loadingOverlay" class="loading-overlay hidden">
                     <div class="loading-spinner"></div>
@@ -67,13 +69,15 @@ class WikidataWordle {
         `;
     }
 
-    initializeModules() {
+    initializeUIComponents() {
+        console.log("Initializing UI components...");
+        
         // Initialize language selector
         this.languageSelector = new LanguageSelector(
             (langCode) => this.onLanguageChange(langCode)
         );
         this.languageSelector.render(
-            this.appContainer.querySelector('#languageSelectorContainer')
+            document.getElementById('languageSelectorContainer')
         );
 
         // Initialize game board
@@ -82,7 +86,7 @@ class WikidataWordle {
             () => this.startNewGame()
         );
         this.gameBoard.render(
-            this.appContainer.querySelector('#gameBoardContainer')
+            document.getElementById('gameBoardContainer')
         );
 
         // Initialize keyboard
@@ -90,7 +94,7 @@ class WikidataWordle {
             (key) => this.onKeyPress(key)
         );
         this.keyboard.render(
-            this.appContainer.querySelector('#keyboardContainer')
+            document.getElementById('keyboardContainer')
         );
 
         // Initialize hint system
@@ -98,52 +102,55 @@ class WikidataWordle {
             (hintType) => this.onHintRequest(hintType)
         );
         this.hintSystem.render(
-            this.appContainer.querySelector('#hintSystemContainer')
+            document.getElementById('hintSystemContainer')
         );
+
+        console.log("UI components initialized!");
     }
 
     async onLanguageChange(languageCode) {
+        console.log("Language changed to:", languageCode);
         if (this.isGameActive) {
             const confirmChange = confirm(
                 'Changing language will start a new game. Continue?'
             );
             if (!confirmChange) return;
         }
-
         await this.startNewGame(languageCode);
     }
 
     async startNewGame(languageCode = null) {
         try {
             this.showLoading(true);
+            this.showMessage('Starting new game...', 'info');
             
             const targetLanguage = languageCode ? 
-                this.languageSelector.selectLanguage(languageCode) :
+                SUPPORTED_LANGUAGES[languageCode] : 
                 this.languageSelector.getCurrentLanguage();
 
             if (!targetLanguage) {
                 throw new Error('No language selected');
             }
 
-            const result = await this.gameEngine.initializeGame(
-                targetLanguage, 
-                'nouns'
-            );
+            console.log("Starting game with language:", targetLanguage.name);
+            
+            const result = await this.gameEngine.initializeGame(targetLanguage, 'nouns');
 
             if (!result.success) {
                 throw new Error(result.error);
             }
 
-            // Initialize UI components
+            // Initialize UI components with the new game
             this.gameBoard.initializeBoard(result.wordLength);
             this.keyboard.reset();
-            this.hintSystem.initializeHints(this.settings.getSettings().difficulty);
+            this.hintSystem.initializeHints('medium');
             this.hintSystem.clearHints();
 
             this.currentGuess = '';
             this.isGameActive = true;
 
-            this.showMessage(`New game started! Guess the ${targetLanguage.name} word.`, 'success');
+            this.showMessage(`New ${targetLanguage.name} game started! Guess the word.`, 'success');
+            console.log("Game started successfully!");
 
         } catch (error) {
             console.error('Failed to start new game:', error);
@@ -156,25 +163,35 @@ class WikidataWordle {
     onKeyPress(key) {
         if (!this.isGameActive) return;
 
+        console.log("Key pressed:", key);
+        
         if (key === 'Enter') {
             this.submitCurrentGuess();
         } else if (key === 'Backspace') {
             this.currentGuess = this.currentGuess.slice(0, -1);
             this.updateCurrentGuessDisplay();
-        } else if (/^[a-z]$/.test(key) && this.currentGuess.length < this.gameEngine.targetWord.length) {
-            this.currentGuess += key;
-            this.updateCurrentGuessDisplay();
+        } else if (/^[a-z]$/.test(key)) {
+            // Only allow letters and respect word length
+            const wordLength = this.gameEngine.targetWord?.length || 0;
+            if (this.currentGuess.length < wordLength) {
+                this.currentGuess += key;
+                this.updateCurrentGuessDisplay();
+            }
         }
     }
 
     updateCurrentGuessDisplay() {
-        // This would update the current row in the game board
-        // For now, we'll just log it
-        console.log('Current guess:', this.currentGuess);
+        // For now, we'll just log the current guess
+        // In a full implementation, this would update the visual game board
+        console.log("Current guess:", this.currentGuess);
     }
 
     async submitCurrentGuess() {
-        if (!this.isGameActive || this.currentGuess.length !== this.gameEngine.targetWord.length) {
+        if (!this.isGameActive) return;
+
+        const wordLength = this.gameEngine.targetWord?.length || 0;
+        if (this.currentGuess.length !== wordLength) {
+            this.showMessage(`Please enter a ${wordLength}-letter word`, 'error');
             return;
         }
 
@@ -194,7 +211,9 @@ class WikidataWordle {
 
             if (result.gameOver) {
                 this.isGameActive = false;
-                this.languageSelector.enable();
+                if (this.languageSelector.enable) {
+                    this.languageSelector.enable();
+                }
             }
 
             this.currentGuess = '';
@@ -211,6 +230,9 @@ class WikidataWordle {
 
         try {
             const hintData = this.gameEngine.useHint(hintType);
+            if (hintData) {
+                this.gameBoard.showHint(hintData);
+            }
             return hintData;
         } catch (error) {
             console.error('Error getting hint:', error);
@@ -220,32 +242,27 @@ class WikidataWordle {
     }
 
     showLoading(show) {
-        const loadingOverlay = this.appContainer.querySelector('#loadingOverlay');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.classList.toggle('hidden', !show);
         }
     }
 
     showMessage(message, type = 'info') {
-        // Use the game board's message system
-        this.gameBoard.showMessage(message, type);
-        
-        // Also log to console for debugging
-        console.log(`[${type}] ${message}`);
-    }
-
-    attachGlobalEventListeners() {
-        // Handle physical keyboard
-        document.addEventListener('keydown', (event) => {
-            if (this.isGameActive && !event.ctrlKey && !event.altKey && !event.metaKey) {
-                this.onKeyPress(event.key.toLowerCase());
+        const messageArea = document.getElementById('messageArea');
+        if (messageArea) {
+            messageArea.textContent = message;
+            messageArea.className = `message-area ${type}`;
+            messageArea.style.display = 'block';
+            
+            // Auto-hide success/info messages after 3 seconds
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    messageArea.style.display = 'none';
+                }, 3000);
             }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            // Could add responsive behavior here
-        });
+        }
+        console.log(`[${type}] ${message}`);
     }
 
     showError(message) {
@@ -261,8 +278,9 @@ class WikidataWordle {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM loaded, starting Wikidata Wordle...");
     new WikidataWordle();
 });
 
-// Export for potential debugging
+// Make it available globally for debugging
 window.WikidataWordleApp = WikidataWordle;
