@@ -12,9 +12,14 @@ Players guess missing letters in lexemes, supported by hints:
 - Translations and senses  
 
 This project combines the fun of Wordle with the educational power of Wikidata’s lexicographic data.
+
 ## Quick Start
 
-1. **Clone the repository**
+### For Players
+Simply visit: [https://masssly.github.io/wikidata-wordle/](https://masssly.github.io/wikidata-wordle/)
+
+### For Developers
+1. **Clone the repository** (optional - only if you want to edit locally)
    ```bash
    git clone https://github.com/Masssly/wikidata-wordle.git
    cd wikidata-wordle
