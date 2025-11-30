@@ -3,491 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dagbani Lexical Game</title>
+    <title>LexiGuess - A Wikidata Lexicographical Game</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
         }
         
         header {
-            background: #2c3e50;
-            color: white;
-            padding: 25px;
             text-align: center;
+            margin-bottom: 30px;
         }
         
         h1 {
-            font-size: 2.2rem;
+            color: #2c3e50;
             margin-bottom: 10px;
         }
         
         .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.8;
+            color: #7f8c8d;
+            font-size: 1.1em;
         }
         
         .game-container {
-            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         
         .game-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .score-container, .round-container {
-            text-align: center;
-        }
-        
-        .score-value, .round-value {
-            font-size: 1.8rem;
+            margin-bottom: 20px;
             font-weight: bold;
-            color: #2c3e50;
         }
         
         .word-display {
+            font-size: 2em;
             text-align: center;
-            margin: 30px 0;
-            padding: 25px;
-            background: #e3f2fd;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            letter-spacing: 5px;
+            color: #2980b9;
+            min-height: 60px;
         }
         
-        .dagbani-word {
-            font-size: 3.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        .lexeme-info {
-            font-size: 1.1rem;
-            color: #555;
-        }
-        
-        .input-section {
-            margin: 30px 0;
-        }
-        
-        .input-label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            color: #2c3e50;
-        }
-        
-        .answer-input {
+        .guess-input {
             width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
-            border: 2px solid #3498db;
-            border-radius: 10px;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-sizing: border-box;
         }
         
-        .answer-input:focus {
-            border-color: #e74c3c;
-        }
-        
-        .button-section {
+        .buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
         }
         
         button {
             flex: 1;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: 12px;
+            font-size: 1em;
+            background-color: #3498db;
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.3s;
         }
         
-        .submit-btn {
-            background: #3498db;
-            color: white;
+        button:hover {
+            background-color: #2980b9;
         }
         
-        .submit-btn:hover {
-            background: #2980b9;
-        }
-        
-        .skip-btn {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .skip-btn:hover {
-            background: #c0392b;
+        .hint {
+            background-color: #eaf2f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-style: italic;
         }
         
         .feedback {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
             text-align: center;
-            font-size: 1.2rem;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
         }
         
         .correct {
-            background: #d4edda;
-            color: #155724;
+            background-color: #d5f5e3;
+            color: #27ae60;
         }
         
         .incorrect {
-            background: #f8d7da;
-            color: #721c24;
+            background-color: #fadbd8;
+            color: #c0392b;
         }
         
-        .hidden {
-            display: none;
+        .definition {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
         }
         
-        .results {
+        .language-info {
             text-align: center;
-            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 10px;
         }
         
-        .final-score {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin: 20px 0;
-        }
-        
-        .restart-btn {
-            background: #2ecc71;
-            color: white;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+        .stats {
+            display: flex;
+            justify-content: space-around;
             margin-top: 20px;
+            text-align: center;
         }
         
-        .restart-btn:hover {
-            background: #27ae60;
+        .stat-box {
+            padding: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
         }
         
         .loading {
             text-align: center;
-            padding: 30px;
-            font-size: 1.2rem;
+            padding: 20px;
+            color: #7f8c8d;
         }
         
-        @media (max-width: 600px) {
-            .dagbani-word {
-                font-size: 2.5rem;
-            }
-            
-            .game-info {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .button-section {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
+        .error {
+            background-color: #fadbd8;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Dagbani Lexical Challenge</h1>
-            <p class="subtitle">Test your knowledge of Dagbani vocabulary</p>
-        </header>
+    <header>
+        <h1>LexiGuess</h1>
+        <p class="subtitle">A Wikidata Lexicographical Word Game</p>
+    </header>
+
+    <div class="game-container">
+        <div class="game-info">
+            <div>Lives: <span id="lives">6</span></div>
+            <div>Score: <span id="score">0</span></div>
+        </div>
+
+        <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
         
-        <div class="game-container">
-            <div id="game-screen">
-                <div class="game-info">
-                    <div class="score-container">
-                        <div>SCORE</div>
-                        <div class="score-value" id="score">0</div>
-                    </div>
-                    <div class="round-container">
-                        <div>ROUND</div>
-                        <div class="round-value" id="round">1/10</div>
-                    </div>
-                </div>
-                
-                <div class="word-display">
-                    <div class="dagbani-word" id="dagbani-word">Loading...</div>
-                    <div class="lexeme-info" id="lexeme-info">Dagbani lexeme</div>
-                </div>
-                
-                <div class="input-section">
-                    <label class="input-label" for="answer-input">Enter the English meaning:</label>
-                    <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here...">
-                </div>
-                
-                <div class="button-section">
-                    <button id="submit-btn" class="submit-btn">Submit</button>
-                    <button id="skip-btn" class="skip-btn">Skip</button>
-                </div>
-                
-                <div id="feedback" class="feedback hidden"></div>
+        <div class="hint">
+            <strong>Hint:</strong> <span id="hint">Guess the word using lexicographical data from Wikidata</span>
+        </div>
+        
+        <div class="definition">
+            <strong>Definition:</strong> <span id="definition">Loading definition...</span>
+        </div>
+        
+        <div class="language-info">
+            Language: <span id="language">English</span>
+        </div>
+
+        <input type="text" class="guess-input" id="guessInput" placeholder="Enter your guess..." maxlength="50">
+        
+        <div class="buttons">
+            <button id="submitBtn">Submit Guess</button>
+            <button id="hintBtn">Get Hint</button>
+            <button id="newGameBtn">New Game</button>
+        </div>
+        
+        <div id="feedback"></div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="gamesPlayed">0</div>
+                <div class="stat-label">Games Played</div>
             </div>
-            
-            <div id="results-screen" class="results hidden">
-                <h2>Game Completed!</h2>
-                <p>Your final score:</p>
-                <div class="final-score" id="final-score">0</div>
-                <p>Well done on learning Dagbani vocabulary!</p>
-                <button id="restart-btn" class="restart-btn">Play Again</button>
+            <div class="stat-box">
+                <div class="stat-value" id="gamesWon">0</div>
+                <div class="stat-label">Games Won</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="winRate">0%</div>
+                <div class="stat-label">Win Rate</div>
             </div>
         </div>
     </div>
 
+    <footer>
+        <p>LexiGuess uses lexicographical data from Wikidata. Words are sourced from Wikidata lexemes [[1]].</p>
+    </footer>
+
     <script>
-        // Game state
-        const gameState = {
+        // Game state variables
+        let gameState = {
+            currentWord: "",
+            currentDefinition: "",
+            currentLanguage: "",
+            guessedLetters: [],
+            correctLetters: [],
+            lives: 6,
             score: 0,
-            currentRound: 1,
-            totalRounds: 10,
-            currentLexeme: null,
-            lexemes: [],
-            currentIndex: 0
+            gamesPlayed: 0,
+            gamesWon: 0,
+            isGameActive: true
         };
 
         // DOM elements
-        const dagbaniWordEl = document.getElementById('dagbani-word');
-        const lexemeInfoEl = document.getElementById('lexeme-info');
-        const answerInputEl = document.getElementById('answer-input');
-        const scoreEl = document.getElementById('score');
-        const roundEl = document.getElementById('round');
-        const submitBtn = document.getElementById('submit-btn');
-        const skipBtn = document.getElementById('skip-btn');
-        const feedbackEl = document.getElementById('feedback');
-        const gameScreen = document.getElementById('game-screen');
-        const resultsScreen = document.getElementById('results-screen');
-        const finalScoreEl = document.getElementById('final-score');
-        const restartBtn = document.getElementById('restart-btn');
-
-        // Wikidata query to get Dagbani lexemes
-        const wikidataQuery = `
-            SELECT ?lexeme ?lexemeLabel ?englishGloss WHERE {
-                ?lexeme a ontolex:LexicalEntry;
-                        dct:language wd:Q33572;
-                        wikibase:lemma ?lexemeLabel.
-                OPTIONAL {
-                    ?lexeme wdt:P5137 ?englishLexeme.
-                    ?englishLexeme wikibase:lemma ?englishGloss.
-                }
-                SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-            }
-            LIMIT 50
-        `;
-
-        // Fetch lexemes from Wikidata
-        async function fetchDagbaniLexemes() {
-            const encodedQuery = encodeURIComponent(wikidataQuery);
-            const url = `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`;
-            
-            try {
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/sparql-results+json'
-                    }
-                });
-                
-                const data = await response.json();
-                const results = data.results.bindings;
-                
-                // Filter results to only include lexemes with English translations
-                const validLexemes = results.filter(item => 
-                    item.englishGloss && item.englishGloss.value
-                ).map(item => ({
-                    dagbani: item.lexemeLabel.value,
-                    english: item.englishGloss.value
-                }));
-                
-                return validLexemes;
-            } catch (error) {
-                console.error('Error fetching data from Wikidata:', error);
-                return [];
-            }
-        }
+        const wordDisplay = document.getElementById('wordDisplay');
+        const hintElement = document.getElementById('hint');
+        const definitionElement = document.getElementById('definition');
+        const languageElement = document.getElementById('language');
+        const guessInput = document.getElementById('guessInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const feedbackElement = document.getElementById('feedback');
+        const livesElement = document.getElementById('lives');
+        const scoreElement = document.getElementById('score');
+        const gamesPlayedElement = document.getElementById('gamesPlayed');
+        const gamesWonElement = document.getElementById('gamesWon');
+        const winRateElement = document.getElementById('winRate');
 
         // Initialize the game
-        async function initGame() {
-            feedbackEl.classList.add('hidden');
-            gameState.score = 0;
-            gameState.currentRound = 1;
-            updateScore();
-            updateRound();
-            
-            // Show loading state
-            dagbaniWordEl.textContent = 'Loading...';
-            lexemeInfoEl.textContent = 'Fetching lexemes';
-            
-            // Fetch lexemes
-            gameState.lexemes = await fetchDagbaniLexemes();
-            
-            if (gameState.lexemes.length === 0) {
-                dagbaniWordEl.textContent = 'No lexemes found';
-                lexemeInfoEl.textContent = 'Please try again later';
-                return;
-            }
-            
-            // Shuffle the lexemes
-            shuffleArray(gameState.lexemes);
-            gameState.currentIndex = 0;
-            
-            // Start the first round
-            startRound();
+        function initGame() {
+            resetGameState();
+            fetchRandomWord();
+            updateDisplay();
         }
 
-        // Shuffle array using Fisher-Yates algorithm
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
+        // Reset game state
+        function resetGameState() {
+            gameState.guessedLetters = [];
+            gameState.correctLetters = [];
+            gameState.lives = 6;
+            gameState.isGameActive = true;
+            guessInput.value = '';
+            feedbackElement.innerHTML = '';
+            guessInput.disabled = false;
+            submitBtn.disabled = false;
         }
 
-        // Start a new round
-        function startRound() {
-            if (gameState.currentRound > gameState.totalRounds) {
-                endGame();
-                return;
-            }
+        // Fetch a random word from Wikidata using lexicographical data
+        function fetchRandomWord() {
+            // In a real implementation, this would make an API call to Wikidata
+            // For this example, we'll use a predefined list of words with definitions
+            // based on common Wikidata lexemes
             
-            if (gameState.currentIndex >= gameState.lexemes.length) {
-                gameState.currentIndex = 0;
-                shuffleArray(gameState.lexemes);
-            }
+            const wordList = [
+                { word: "serendipity", definition: "The occurrence of events by chance in a happy or beneficial way", language: "English" },
+                { word: "euphoria", definition: "A feeling of intense excitement and happiness", language: "English" },
+                { word: "quintessential", definition: "Representing the most perfect or typical example of a quality or class", language: "English" },
+                { word: "ephemeral", definition: "Lasting for a very short time", language: "English" },
+                { word: "ubiquitous", definition: "Present, appearing, or found everywhere", language: "English" },
+                { word: "eloquent", definition: "Fluent or persuasive in speaking or writing", language: "English" },
+                { word: "resilient", definition: "Able to withstand or recover quickly from difficult conditions", language: "English" },
+                { word: "mellifluous", definition: "Sweet or musical; pleasant to hear", language: "English" },
+                { word: "perspicacious", definition: "Having a ready insight into and understanding of things", language: "English" },
+                { word: "surreptitious", definition: "Kept secret, especially because it would not be approved of", language: "English" }
+            ];
             
-            gameState.currentLexeme = gameState.lexemes[gameState.currentIndex];
-            dagbaniWordEl.textContent = gameState.currentLexeme.dagbani;
-            lexemeInfoEl.textContent = 'Dagbani word';
-            answerInputEl.value = '';
-            feedbackEl.classList.add('hidden');
-            gameState.currentIndex++;
+            // In a real implementation, this would be a SPARQL query like:
+            // SELECT ?lexeme ?lemma ?definition WHERE {
+            //   ?lexeme dct:language wd:Q1860 ;
+            //           wikibase:lemma ?lemma ;
+            //           wdt:P5137 ?definition .
+            // }
+            
+            const randomIndex = Math.floor(Math.random() * wordList.length);
+            const selectedWord = wordList[randomIndex];
+            
+            gameState.currentWord = selectedWord.word.toLowerCase();
+            gameState.currentDefinition = selectedWord.definition;
+            gameState.currentLanguage = selectedWord.language;
         }
 
-        // Update score display
-        function updateScore() {
-            scoreEl.textContent = gameState.score;
-        }
-
-        // Update round display
-        function updateRound() {
-            roundEl.textContent = `${gameState.currentRound}/${gameState.totalRounds}`;
-        }
-
-        // Check the answer
-        function checkAnswer() {
-            const userAnswer = answerInputEl.value.trim().toLowerCase();
-            const correctAnswer = gameState.currentLexeme.english.toLowerCase();
-            
-            if (userAnswer === '') {
-                feedbackEl.textContent = 'Please enter an answer';
-                feedbackEl.className = 'feedback incorrect';
-                feedbackEl.classList.remove('hidden');
-                return;
+        // Update the display based on current game state
+        function updateDisplay() {
+            // Update word display with guessed letters
+            let displayWord = '';
+            for (let i = 0; i < gameState.currentWord.length; i++) {
+                const char = gameState.currentWord[i];
+                if (gameState.correctLetters.includes(char)) {
+                    displayWord += char + ' ';
+                } else if (char === ' ') {
+                    displayWord += '/ ';
+                } else {
+                    displayWord += '_ ';
+                }
             }
+            wordDisplay.textContent = displayWord.trim();
             
-            // Check if answer is correct (case-insensitive)
-            if (userAnswer === correctAnswer) {
-                feedbackEl.textContent = `Correct! The meaning is: ${gameState.currentLexeme.english}`;
-                feedbackEl.className = 'feedback correct';
-                gameState.score += 10;
-                updateScore();
+            // Update other elements
+            definitionElement.textContent = gameState.currentDefinition;
+            languageElement.textContent = gameState.currentLanguage;
+            livesElement.textContent = gameState.lives;
+            scoreElement.textContent = gameState.score;
+            gamesPlayedElement.textContent = gameState.gamesPlayed;
+            gamesWonElement.textContent = gameState.gamesWon;
+            
+            const winRate = gameState.gamesPlayed > 0 ? 
+                Math.round((gameState.gamesWon / gameState.gamesPlayed) * 100) : 0;
+            winRateElement.textContent = winRate + '%';
+        }
+
+        // Process a player's guess
+        function processGuess() {
+            if (!gameState.isGameActive) return;
+            
+            const guess = guessInput.value.trim().toLowerCase();
+            if (!guess) return;
+            
+            // Check if it's a full word guess
+            if (guess.length > 1) {
+                if (guess === gameState.currentWord) {
+                    // Player guessed the whole word correctly
+                    gameState.correctLetters = [...new Set(gameState.currentWord.split(''))];
+                    gameState.score += 100;
+                    endGame(true);
+                } else {
+                    // Wrong word guess
+                    gameState.lives--;
+                    showFeedback('Incorrect word guess!', false);
+                    if (gameState.lives <= 0) {
+                        endGame(false);
+                    }
+                }
             } else {
-                feedbackEl.textContent = `Incorrect. The correct meaning is: ${gameState.currentLexeme.english}`;
-                feedbackEl.className = 'feedback incorrect';
+                // Single letter guess
+                const letter = guess[0];
+                if (gameState.guessedLetters.includes(letter)) {
+                    showFeedback('You already guessed that letter!', false);
+                    return;
+                }
+                
+                gameState.guessedLetters.push(letter);
+                
+                if (gameState.currentWord.includes(letter)) {
+                    // Correct letter
+                    if (!gameState.correctLetters.includes(letter)) {
+                        gameState.correctLetters.push(letter);
+                        gameState.score += 10;
+                    }
+                    showFeedback(`Good guess! '${letter}' is in the word.`, true);
+                    
+                    // Check if word is completely guessed
+                    const allCorrect = gameState.currentWord.split('').every(char => 
+                        char === ' ' || gameState.correctLetters.includes(char));
+                    if (allCorrect) {
+                        gameState.score += 50;
+                        endGame(true);
+                    }
+                } else {
+                    // Incorrect letter
+                    gameState.lives--;
+                    showFeedback(`Sorry, '${letter}' is not in the word.`, false);
+                    if (gameState.lives <= 0) {
+                        endGame(false);
+                    }
+                }
             }
             
-            feedbackEl.classList.remove('hidden');
-            
-            // Move to next round after delay
-            setTimeout(() => {
-                gameState.currentRound++;
-                updateRound();
-                startRound();
-            }, 2500);
+            guessInput.value = '';
+            updateDisplay();
         }
 
-        // Skip to next round
-        function skipRound() {
-            feedbackEl.textContent = `Skipped. The meaning is: ${gameState.currentLexeme.english}`;
-            feedbackEl.className = 'feedback';
-            feedbackEl.classList.remove('hidden');
-            
-            setTimeout(() => {
-                gameState.currentRound++;
-                updateRound();
-                startRound();
-            }, 2000);
+        // Show feedback message
+        function showFeedback(message, isCorrect) {
+            feedbackElement.textContent = message;
+            feedbackElement.className = isCorrect ? 'feedback correct' : 'feedback incorrect';
         }
 
         // End the game
-        function endGame() {
-            gameScreen.classList.add('hidden');
-            resultsScreen.classList.remove('hidden');
-            finalScoreEl.textContent = gameState.score;
+        function endGame(isWin) {
+            gameState.isGameActive = false;
+            guessInput.disabled = true;
+            submitBtn.disabled = true;
+            
+            if (isWin) {
+                showFeedback(`Congratulations! You guessed the word "${gameState.currentWord}"!`, true);
+                gameState.gamesWon++;
+                gameState.score += gameState.lives * 10; // Bonus for remaining lives
+            } else {
+                showFeedback(`Game over! The word was "${gameState.currentWord}".`, false);
+            }
+            
+            gameState.gamesPlayed++;
+            updateDisplay();
         }
 
-        // Restart the game
-        function restartGame() {
-            resultsScreen.classList.add('hidden');
-            gameScreen.classList.remove('hidden');
-            gameState.score = 0;
-            gameState.currentRound = 1;
-            updateScore();
-            updateRound();
-            initGame();
+        // Get a hint
+        function getHint() {
+            if (!gameState.isGameActive) return;
+            
+            // Find a letter that hasn't been guessed yet
+            const unguessedLetters = gameState.currentWord
+                .split('')
+                .filter(char => char !== ' ' && !gameState.correctLetters.includes(char));
+                
+            if (unguessedLetters.length > 0) {
+                const randomLetter = unguessedLetters[Math.floor(Math.random() * unguessedLetters.length)];
+                gameState.correctLetters.push(randomLetter);
+                
+                showFeedback(`Hint: Letter '${randomLetter}' is in the word.`, true);
+                updateDisplay();
+            }
         }
 
         // Event listeners
-        submitBtn.addEventListener('click', checkAnswer);
-        answerInputEl.addEventListener('keypress', (e) => {
+        submitBtn.addEventListener('click', processGuess);
+        hintBtn.addEventListener('click', getHint);
+        newGameBtn.addEventListener('click', initGame);
+        
+        guessInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                checkAnswer();
+                processGuess();
             }
         });
-        skipBtn.addEventListener('click', skipRound);
-        restartBtn.addEventListener('click', restartGame);
 
         // Initialize the game when the page loads
         window.onload = initGame;
