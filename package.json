@@ -1,0 +1,15 @@
+{
+  "name": "wikidata-wordle",
+  "version": "1.0.0",
+  "description": "A Wordle-style game using Wikidata Lexemes",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  }
+}
