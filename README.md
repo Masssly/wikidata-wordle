@@ -1,2 +1,14 @@
-# wikidata-wordle
-A Wordle-inspired puzzle game using Wikidata Lexemes, influenced by Ordia Game, Talaios Wordle, Gene of the Day, and the original Wordle.
+# Wikidata:Wordle
+
+[Wikidata:Wordle](https://www.wikidata.org/wiki/Wikidata:Wordle) is a puzzle game inspired by the original [Wordle](https://www.nytimes.com/games/wordle/index.html)  
+and by community-driven experiments such as [Ordia Game](https://ordia.toolforge.org/game/),  
+[Talaios Wordle](https://wordle.talaios.coop/), and [Gene of the Day](https://geneofthe.day/).
+
+Unlike traditional Wordle clones, my experiment uses **Wikidata Lexemes** as its word source.  
+Players guess missing letters in lexemes, supported by hints:  
+- Grammatical features (noun, gender, plural form)  
+- Associated images from Wikimedia Commons  
+- Pronunciation audio (if available)  
+- Translations and senses  
+
+This project combines the fun of Wordle with the educational power of Wikidata’s lexicographic data.
